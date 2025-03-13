@@ -4,52 +4,50 @@ const deleteButton = document.getElementById("deleteButton");
 const loader = document.getElementById("loader");
 const dislikeButton = document.getElementById("dislike");
 const dislikeList = document.getElementById("dislike-list");
-
+const twitterShare = document.getElementById("twitterShare");
+const copyToClipboard = document.getElementById('copy');
 
 const dislikedQuotes = [];
 let quotes = [];
 
 
-
-function fetchQuotes() {
+window.addEventListener("load", () => {
     fetch('https://api.gameofthronesquotes.xyz/v1/random/5')
         .then(response => response.json())
         .then(data => {
             quotes = data.map(quote => quote.sentence);
-            console.log(quotes);
+            generateButton.addEventListener('click', () => {
+                generateButton.innerHTML = `<i class="fa-solid fa-sync fa-spin"></i> generating...`;
+                generateButton.style.opacity = 0.5;
+                    if (quotes.length > 0) {
+                const availableQuotes = quotes.filter(quote => !dislikedQuotes.includes(quote));
+                console.log(availableQuotes);
+                if (availableQuotes.length > 0) {
+                    const random = Math.floor(Math.random() * availableQuotes.length);
+                    const currentQuote = availableQuotes[random];
+                    generatedQuotes.textContent = currentQuote;
+                    } else {
+                        generatedQuotes.textContent = "No quotes available.";
+                        generateButton.disabled = true;
+                    }
+                }
+                generateButton.innerHTML = `New Quote`;
+                generateButton.style.opacity = 1;
+                generateButton.disabled = false;
+            });
             if (quotes.length > 0) {
                 generatedQuotes.textContent = quotes[0];
             } else {
                 generatedQuotes.textContent = "No quotes available.";
             }
         })
-        .catch(error => console.log(error));
-}
-
-window.addEventListener("load", () => {
-    fetchQuotes();
+        .catch(error => {
+            setTimeout(() => {
+                
+        }, 30000);
+        });
 });
 
-
-generateButton.addEventListener('click', () => {
-    generateButton.innerHTML = `<i class="fa-solid fa-sync fa-spin"></i> generating...`;
-    generateButton.style.opacity = 0.5;
-        if (quotes.length > 0) {
-    const availableQuotes = quotes.filter(quote => !dislikedQuotes.includes(quote));
-    console.log(availableQuotes);
-    if (availableQuotes.length > 0) {
-        const random = Math.floor(Math.random() * availableQuotes.length);
-        const currentQuote = availableQuotes[random];
-        generatedQuotes.textContent = currentQuote;
-        } else {
-            generatedQuotes.textContent = "No quotes available.";
-            generateButton.disabled = true;
-        }
-    }
-    generateButton.innerHTML = `New Quote`;
-    generateButton.style.opacity = 1;
-    generateButton.disabled = false;
-});
 
 dislikeButton.addEventListener('click', () => {
     const currentQuote = generatedQuotes.textContent;
@@ -73,3 +71,15 @@ dislikeButton.addEventListener('click', () => {
     }
 });
 
+
+twitterShare.addEventListener('click', () => {
+    const currentQuote = generatedQuotes.textContent;
+    twitterShare.setAttribute('href', `https://x.com/intent/post?text=${currentQuote}`);
+    console.log(currentQuote)
+})
+
+copyToClipboard.addEventListener('click', () => {
+    const currentQuote = generatedQuotes.textContent;
+
+    navigator.clipboard.writeText(currentQuote);
+})
